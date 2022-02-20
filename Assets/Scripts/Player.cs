@@ -12,7 +12,6 @@ public class Player : NetworkBehaviour
     float blockOffsetY, blockOffsetX;
     Vector3 moveVector;
     new Renderer renderer;
-    GameManager gameManager;
     private int blockArrayWidth = 10;
     private int blockArrayHeight = 5;
     GameObject[,] blockArray;
@@ -20,6 +19,9 @@ public class Player : NetworkBehaviour
     public Text playerScoreText;
     public Vector3 spawnPosition;
     public bool launchedBall;
+    CameraBounds cameraBounds;
+    public RectTransform playerInfoRect;
+    Color color;
 
     [SyncVar(hook = nameof(OnScoreUpdate))]
     public int playerScore;
@@ -34,24 +36,34 @@ public class Player : NetworkBehaviour
     {
         playerNameText.text = playerName.ToString();
     }
-    
+
     void Start()
     {
-
+        cameraBounds = FindObjectOfType<CameraBounds>();
         blockArray = new GameObject[blockArrayWidth, blockArrayHeight];
-        gameManager = FindObjectOfType<GameManager>();
         renderer = GetComponent<Renderer>();
         transform.name = GetComponent<NetworkIdentity>().netId.ToString();
-        Invoke("SetName",0.5f);
-            if (gameManager.blockArraySpawned)
-            {
-                return;
-            }
-            else
-            {
+        Invoke("SetName", 0.5f);
+
+        if (isLocalPlayer)
+        {
+            GameManager.instance.canLaunch = true;
+        }
+        if (NetworkManager.singleton.numPlayers > 1)
+        {
+            CmdRepositionPlayerPanel();
+        }
+
+       
+        if (GameManager.instance.blockArraySpawned)
+        {
+            return;
+        }
+        else
+        {
             StartCoroutine(SpawnBlockArray());
-            gameManager.blockArraySpawned = true;
-            }    
+            GameManager.instance.blockArraySpawned = true;
+        } 
     }
 
     void Update()
@@ -59,18 +71,22 @@ public class Player : NetworkBehaviour
         if (!isLocalPlayer)
             return;
         PlayerMovement();
-        
-        if (Input.GetKeyDown(KeyCode.Space)&&!launchedBall)
+
+        if (Input.GetKeyDown(KeyCode.Space) && !launchedBall)
         {
-           CmdLaunchBall();
-            launchedBall = true;
+            if(GameManager.instance.canLaunch)
+            {
+                CmdLaunchBall();
+                GameManager.instance.canLaunch = false;
+            }
+           
         }
     }
     void PlayerMovement()
     {
         moveVector = new Vector3(Input.GetAxis("Mouse X"), 0, 0).normalized;//pass the mouse horizontal movement into the moveVector and normalise it.
         transform.position = (new Vector3(Mathf.Clamp(transform.position.x + moveVector.x * speed * Time.deltaTime,
-        gameManager.LeftCameraBounds+renderer.bounds.size.x/2, gameManager.RightCameraBounds - renderer.bounds.size.x / 2), -4, 0));//apply and clamp player movement to horizontal viewPort + player bounds 
+       cameraBounds.LeftCameraBounds + renderer.bounds.size.x / 2, cameraBounds.RightCameraBounds - renderer.bounds.size.x / 2), -4, 0));//apply and clamp player movement to horizontal viewPort + player bounds 
     }
 
     [Command(requiresAuthority = false)]
@@ -82,11 +98,11 @@ public class Player : NetworkBehaviour
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
                                                          //Debug.DrawLine(transform.position, dir, Color.green);
         ball.GetComponent<Ball>().player = this;
-        ball.GetComponent<Rigidbody>().velocity = dir * 200f;
+        ball.GetComponent<Rigidbody>().velocity = dir * 600f;
         ball.GetComponent<Ball>().movementDirection = dir;
         ball.GetComponent<Ball>().hasLaunched = true;
     }
- 
+
     public IEnumerator SpawnBlockArray()
     {
         for (int x = 0; x < 10; x++)
@@ -98,30 +114,46 @@ public class Player : NetworkBehaviour
                 go.transform.name = "Block " + go.transform.position.ToString();
                 blockArray[x, y] = go;//adding spawned blocks to block array
                 NetworkServer.Spawn(go);
-                yield return new WaitForSeconds(0.005f);
+                yield return new WaitForSeconds(0.001f);
             }
         }
 
-        for (int i = 0; i <= blockArray.GetUpperBound(0); i++)//iterate through each row and set the material color
+        for (int i = 0; i <= blockArray.GetUpperBound(0); i++)//iterate through each row and set the material color with hex codes
         {
 
-            blockArray[i, 0].GetComponent<MeshRenderer>().material.color = Color.magenta;
-            blockArray[i, 1].GetComponent<MeshRenderer>().material.color = Color.green;
-            blockArray[i, 2].GetComponent<MeshRenderer>().material.color = Color.red;
-            blockArray[i, 3].GetComponent<MeshRenderer>().material.color = Color.black;
-            blockArray[i, 4].GetComponent<MeshRenderer>().material.color = Color.blue;
+            if (ColorUtility.TryParseHtmlString("#14145B", out color))
+            {
+                blockArray[i, 0].GetComponent<MeshRenderer>().material.color = color;
+            }
+            if (ColorUtility.TryParseHtmlString("#0C9E9D", out color))
+            {
+                blockArray[i, 1].GetComponent<MeshRenderer>().material.color = color;
+            }
+            if (ColorUtility.TryParseHtmlString("#76C2BC", out color))
+            {
+                blockArray[i, 2].GetComponent<MeshRenderer>().material.color = color;
+            }
+            if (ColorUtility.TryParseHtmlString("#97CB82", out color))
+            {
+                blockArray[i, 3].GetComponent<MeshRenderer>().material.color = color;
+            }
+            if (ColorUtility.TryParseHtmlString("#F4F4E1", out color))
+            {
+                blockArray[i, 4].GetComponent<MeshRenderer>().material.color = color;
+            }
             yield return new WaitForSeconds(0.1f);
+
         }
     }
     public Vector2 RandomVector2(float angleMax, float angleMin)//returns a random Vector2 using cos / sin / takes in radians
     {
-        float random = Random.Range(angleMax,angleMin);
+        float random = Random.Range(angleMax, angleMin);
         return new Vector2(Mathf.Cos(random), Mathf.Sin(random));
     }
     [Client]
     public void SpawnNetworkObject(string obj, Vector3 pos) //clients tell server to spawn an object at position
     {
-        CmdSpawnNetworkObject(obj,pos);
+        CmdSpawnNetworkObject(obj, pos);
     }
     [Command(requiresAuthority = false)]
     public void CmdSpawnNetworkObject(string obj, Vector3 pos) //object spawned by server
@@ -133,4 +165,18 @@ public class Player : NetworkBehaviour
     {
         playerName = GetComponent<NetworkIdentity>().netId.ToString();
     }
+
+
+[Command(requiresAuthority = false)]
+    public void CmdRepositionPlayerPanel()//server message to clients for repositioning of player score panel
+    {
+        RpcRepositionPlayerPanel();
+    }
+
+    [ClientRpc]
+    public void RpcRepositionPlayerPanel()//tell clients to move their score panel
+    {
+        playerInfoRect.anchoredPosition = new Vector2(158.7f, 445.3f);
+    }
+
 }

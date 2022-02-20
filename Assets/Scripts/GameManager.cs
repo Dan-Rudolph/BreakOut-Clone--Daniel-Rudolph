@@ -1,32 +1,21 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using Mirror;
-  
 
-
-public class GameManager:NetworkBehaviour
+public class GameManager : MonoBehaviour
 {
-    new Camera camera;
-    public float LeftCameraBounds, RightCameraBounds, topCameraBounds, bottomCameraBounds;
-    public bool blockArraySpawned = false;
-   
-    private void Start()
-    {
-        camera = FindObjectOfType<Camera>();
-          
-    }
-    private void Update()
-    {
-        PlayAreaLimits();
-    }
+    public static GameManager instance;
 
-    public void PlayAreaLimits()
+    public bool blockArraySpawned = false;
+    public int totalBallCount;
+    public bool canLaunch;
+    void Awake()
     {
-        LeftCameraBounds = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x; //sets bounds of camera
-        RightCameraBounds = camera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x;
-        topCameraBounds = camera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y ;
-        bottomCameraBounds = camera.ViewportToWorldPoint(new Vector3(0, -0.5f, 0)).y;
+        if (instance != null)
+            GameObject.Destroy(instance);
+        else
+            instance = this;
+        DontDestroyOnLoad(this);
     }
 }
+
