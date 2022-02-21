@@ -9,14 +9,17 @@ public class GameManager : MonoBehaviour
     public bool blockArraySpawned = false;
     public bool canLaunch = false;
     public bool loadedBall = false;
-    public List<string> sceneBalls = new List<string>();
+    //public List<string> sceneBalls = new List<string>();
+    public GameObject[,] blockArray;
     void Awake()
     {
+       blockArray = new GameObject[10, 5];
         if (instance != null)
             GameObject.Destroy(instance);
         else
             instance = this;
-        DontDestroyOnLoad(this);
+       // DontDestroyOnLoad(this);
     }
+   
 }
 

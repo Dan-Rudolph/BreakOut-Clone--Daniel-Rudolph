@@ -36,7 +36,13 @@ public class Player : NetworkBehaviour
     {
         playerNameText.text = playerName.ToString();
     }
-    
+
+    [SyncVar(hook = nameof(OnColourChange))]
+    public bool colourChanging;
+    public void OnColourChange(bool active, bool notActive)
+    {
+        ColourBlockArray();
+    }
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -45,21 +51,22 @@ public class Player : NetworkBehaviour
         renderer = GetComponent<Renderer>();
         transform.name = GetComponent<NetworkIdentity>().netId.ToString();
         Invoke("SetName", 0.5f);
+        
 
-       
         if (NetworkManager.singleton.numPlayers > 1)
         {
             CmdRepositionPlayerPanel();
+            
         }
 
-       
+
         if (GameManager.instance.blockArraySpawned)
         {
             return;
         }
         else
         {
-            StartCoroutine(SpawnBlockArray());
+           CmdSpawnBlockArray(GetComponent<NetworkIdentity>());
             GameManager.instance.blockArraySpawned = true;
         } 
     }
@@ -102,7 +109,6 @@ public class Player : NetworkBehaviour
 
         GameObject ball = Instantiate(Resources.Load("Ball"), transform.GetChild(0).transform.position, Quaternion.identity) as GameObject;
         NetworkServer.Spawn(ball);
-        GameManager.instance.sceneBalls.Add(ball.GetComponent<NetworkIdentity>().netId.ToString());
         ballId.gameObject.GetComponent<Player>().ballNetId = ball.GetComponent<NetworkIdentity>();
         ball.GetComponent<Ball>().ballNetId = ball.GetComponent<NetworkIdentity>();
         ball.GetComponent<Ball>().ownerId = ballId;
@@ -165,48 +171,61 @@ public class Player : NetworkBehaviour
         netId.GetComponent<Rigidbody>().Sleep();
         netId.GetComponent<Ball>().hasLaunched = false;
     }
-    public IEnumerator SpawnBlockArray()
+    [Command]
+    public void CmdSpawnBlockArray(NetworkIdentity netid)
     {
+        GameObject go;
         for (int x = 0; x < 10; x++)
         {
             for (int y = 0; y < 5; y++)
             {
-                GameObject go = Instantiate(Resources.Load("Block"), new Vector3(spawnPosition.x + x * blockOffsetX,
+                 go = Instantiate(Resources.Load("Block"), new Vector3(spawnPosition.x + x * blockOffsetX,
                 spawnPosition.y + y * blockOffsetY, 0), Quaternion.identity) as GameObject;
                 go.transform.name = "Block " + go.transform.position.ToString();
-                blockArray[x, y] = go;//adding spawned blocks to block array
+                GameManager.instance.blockArray[x, y] = go;
+                
+               
+                
                 NetworkServer.Spawn(go);
-                yield return new WaitForSeconds(0.001f);
+               
             }
         }
 
-        for (int i = 0; i <= blockArray.GetUpperBound(0); i++)//iterate through each row and set the material color with hex codes
+        ColourBlockArray();
+        colourChanging = true;
+    }
+    
+    public void ColourBlockArray()
+    {
+       
+        for (int i = 0; i <= GameManager.instance.blockArray.GetUpperBound(0); i++)//iterate through each row and set the material color with hex codes
         {
 
             if (ColorUtility.TryParseHtmlString("#14145B", out color))
             {
-                blockArray[i, 0].GetComponent<MeshRenderer>().material.color = color;
+                GameManager.instance.blockArray[i, 0].GetComponent<MeshRenderer>().material.color = color;
             }
             if (ColorUtility.TryParseHtmlString("#0C9E9D", out color))
             {
-                blockArray[i, 1].GetComponent<MeshRenderer>().material.color = color;
+                GameManager.instance.blockArray[i, 1].GetComponent<MeshRenderer>().material.color = color;
             }
             if (ColorUtility.TryParseHtmlString("#76C2BC", out color))
             {
-                blockArray[i, 2].GetComponent<MeshRenderer>().material.color = color;
+                GameManager.instance.blockArray[i, 2].GetComponent<MeshRenderer>().material.color = color;
             }
             if (ColorUtility.TryParseHtmlString("#97CB82", out color))
             {
-                blockArray[i, 3].GetComponent<MeshRenderer>().material.color = color;
+                GameManager.instance.blockArray[i, 3].GetComponent<MeshRenderer>().material.color = color;
             }
             if (ColorUtility.TryParseHtmlString("#F4F4E1", out color))
             {
-                blockArray[i, 4].GetComponent<MeshRenderer>().material.color = color;
+                GameManager.instance.blockArray[i, 4].GetComponent<MeshRenderer>().material.color = color;
             }
-            yield return new WaitForSeconds(0.1f);
+
 
         }
     }
+
     public Vector2 RandomVector2(float angleMax, float angleMin)//returns a random Vector2 using cos / sin / takes in radians
     {
         float random = Random.Range(angleMax, angleMin);
