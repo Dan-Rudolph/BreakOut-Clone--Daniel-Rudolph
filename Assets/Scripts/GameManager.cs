@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     public bool blockArraySpawned = false;
     public bool canLaunch = false;
     public bool loadedBall = false;
-    //public List<string> sceneBalls = new List<string>();
+ 
     public GameObject[,] blockArray;
     void Awake()
     {

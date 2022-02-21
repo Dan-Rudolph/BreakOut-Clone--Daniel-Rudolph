@@ -23,6 +23,7 @@ public class Player : NetworkBehaviour
     CameraBounds cameraBounds;
     public RectTransform playerInfoRect;
     Color color;
+    
     [SyncVar(hook = nameof(OnScoreUpdate))]
     public int playerScore;
     public void OnScoreUpdate(int currentScore, int newScore)
@@ -43,6 +44,7 @@ public class Player : NetworkBehaviour
     {
         ColourBlockArray();
     }
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -55,11 +57,8 @@ public class Player : NetworkBehaviour
 
         if (NetworkManager.singleton.numPlayers > 1)
         {
-            CmdRepositionPlayerPanel();
-            
+            CmdRepositionPlayerPanel();  
         }
-
-
         if (GameManager.instance.blockArraySpawned)
         {
             return;
@@ -67,7 +66,7 @@ public class Player : NetworkBehaviour
         else
         {
            CmdSpawnBlockArray(GetComponent<NetworkIdentity>());
-            GameManager.instance.blockArraySpawned = true;
+           GameManager.instance.blockArraySpawned = true;
         } 
     }
 
@@ -89,10 +88,6 @@ public class Player : NetworkBehaviour
                 CmdLoadBall(transform.GetComponent<NetworkIdentity>());
                 GameManager.instance.loadedBall = true;
             }
-
-            
-            
-           
         }
     }
     void PlayerMovement()
@@ -102,20 +97,12 @@ public class Player : NetworkBehaviour
        cameraBounds.LeftCameraBounds + renderer.bounds.size.x / 2, cameraBounds.RightCameraBounds - renderer.bounds.size.x / 2), -4, 0));//apply and clamp player movement to horizontal viewPort + player bounds 
     }
 
-   
     [Command]
     public void CmdLoadBall(NetworkIdentity ballId)
     {
-
         GameObject ball = Instantiate(Resources.Load("Ball"), transform.GetChild(0).transform.position, Quaternion.identity) as GameObject;
         NetworkServer.Spawn(ball);
-        ballId.gameObject.GetComponent<Player>().ballNetId = ball.GetComponent<NetworkIdentity>();
-        ball.GetComponent<Ball>().ballNetId = ball.GetComponent<NetworkIdentity>();
-        ball.GetComponent<Ball>().ownerId = ballId;
-       
-
         RpcLoadBall(ballId, ball.GetComponent<NetworkIdentity>());
-
     }
     [ClientRpc]
     public void RpcLoadBall(NetworkIdentity ballId,NetworkIdentity ball)
@@ -131,21 +118,16 @@ public class Player : NetworkBehaviour
     [Command]
     public void CmdLaunchBall(NetworkIdentity ballId)
     {
-
-        
-        
         GameObject ball = ballNetId.gameObject;
         ball.GetComponent<Ball>().player = ballId.GetComponent<Player>();
         ball.transform.parent = null;
         RpcLaunchBall(ballId);
-         ball.GetComponent<Ball>().hasLaunched = true;
+        ball.GetComponent<Ball>().hasLaunched = true;
     }
     [ClientRpc]
     public void RpcLaunchBall(NetworkIdentity ballId)
     {
-
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
-       
         GameObject ball = ballNetId.gameObject;
         ball.GetComponent<Ball>().movementDirection = dir;
         ball.GetComponent<Ball>().player = ballId.GetComponent<Player>();
@@ -183,24 +165,18 @@ public class Player : NetworkBehaviour
                 spawnPosition.y + y * blockOffsetY, 0), Quaternion.identity) as GameObject;
                 go.transform.name = "Block " + go.transform.position.ToString();
                 GameManager.instance.blockArray[x, y] = go;
-                
-               
-                
                 NetworkServer.Spawn(go);
                
             }
         }
-
         ColourBlockArray();
         colourChanging = true;
     }
     
     public void ColourBlockArray()
     {
-       
         for (int i = 0; i <= GameManager.instance.blockArray.GetUpperBound(0); i++)//iterate through each row and set the material color with hex codes
         {
-
             if (ColorUtility.TryParseHtmlString("#14145B", out color))
             {
                 GameManager.instance.blockArray[i, 0].GetComponent<MeshRenderer>().material.color = color;
@@ -221,11 +197,8 @@ public class Player : NetworkBehaviour
             {
                 GameManager.instance.blockArray[i, 4].GetComponent<MeshRenderer>().material.color = color;
             }
-
-
         }
     }
-
     public Vector2 RandomVector2(float angleMax, float angleMin)//returns a random Vector2 using cos / sin / takes in radians
     {
         float random = Random.Range(angleMax, angleMin);
@@ -246,14 +219,11 @@ public class Player : NetworkBehaviour
     {
         playerName = GetComponent<NetworkIdentity>().netId.ToString();
     }
-
-
-[Command(requiresAuthority = false)]
+    [Command(requiresAuthority = false)]
     public void CmdRepositionPlayerPanel()//server message to clients for repositioning of player score panel
     {
         RpcRepositionPlayerPanel();
     }
-
     [ClientRpc]
     public void RpcRepositionPlayerPanel()//tell clients to move their score panel
     {

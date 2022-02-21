@@ -66,10 +66,8 @@ public class Ball : NetworkBehaviour
         if (collision.gameObject.CompareTag("Block"))
         {
             player.playerScore += 100;
-
             StartCoroutine(DeflectBall(collision.GetContact(0).normal));
             NetworkServer.Destroy(collision.gameObject);
-            
             player.SpawnNetworkObject("impact", transform.position);
         }
         if (collision.gameObject.CompareTag("Player"))
@@ -80,7 +78,6 @@ public class Ball : NetworkBehaviour
         {
             StartCoroutine(BallDeathTimer());
         }
-
     }
     private void OnCollisionStay(Collision collision)
     {
@@ -102,7 +99,6 @@ public class Ball : NetworkBehaviour
         {
             StartCoroutine(BallDeathTimer());
         }
-
     }
     private void OnCollisionExit(Collision collision)
     {
@@ -121,12 +117,8 @@ public class Ball : NetworkBehaviour
     {
         hasLaunched = false;
         rb.velocity = Vector3.zero;
-        //sphereCollider.enabled = false;
         GameManager.instance.canLaunch = true;
-       // GameManager.instance.loadedBall =false;
         yield return new WaitForSeconds(1);
         ownerId.gameObject.GetComponent<Player>().CmdReturnBall(ballNetId, ownerId);
     }
-
-
 }
