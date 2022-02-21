@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Block : MonoBehaviour
+using Mirror;
+public class Block :NetworkBehaviour
 {
     private float health;
     private bool canBreak;
 
 
-
+   
 }

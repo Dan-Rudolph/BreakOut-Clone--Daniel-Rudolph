@@ -65,9 +65,11 @@ public class Ball : NetworkBehaviour
             return;
         if (collision.gameObject.CompareTag("Block"))
         {
-            StartCoroutine(DeflectBall(collision.GetContact(0).normal));
-            Mirror.NetworkServer.Destroy(collision.gameObject);
             player.playerScore += 100;
+
+            StartCoroutine(DeflectBall(collision.GetContact(0).normal));
+            NetworkServer.Destroy(collision.gameObject);
+            
             player.SpawnNetworkObject("impact", transform.position);
         }
         if (collision.gameObject.CompareTag("Player"))
@@ -86,9 +88,10 @@ public class Ball : NetworkBehaviour
             return;
         if (collision.gameObject.CompareTag("Block"))
         {
-            StartCoroutine(DeflectBall(collision.GetContact(0).normal));
-            Mirror.NetworkServer.Destroy(collision.gameObject);
             player.playerScore += 100;
+            StartCoroutine(DeflectBall(collision.GetContact(0).normal));
+            NetworkServer.Destroy(collision.gameObject);
+           
             player.SpawnNetworkObject("impact", transform.position);
         }
         if (collision.gameObject.CompareTag("Player"))

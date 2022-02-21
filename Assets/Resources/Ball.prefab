@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: -4190730217033519016}
   - component: {fileID: 2938868461218573234}
   - component: {fileID: 8221347250987632424}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,13 +96,13 @@ Rigidbody:
   m_GameObject: {fileID: 5685013547978372570}
   serializedVersion: 2
   m_Mass: 1.03
-  m_Drag: 0
+  m_Drag: 0.06
   m_AngularDrag: 0
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 8
-  m_CollisionDetection: 2
+  m_CollisionDetection: 1
 --- !u!135 &4450916140336768264
 SphereCollider:
   m_ObjectHideFlags: 0

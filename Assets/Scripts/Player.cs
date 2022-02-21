@@ -36,7 +36,7 @@ public class Player : NetworkBehaviour
     {
         playerNameText.text = playerName.ToString();
     }
-
+    
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -127,13 +127,11 @@ public class Player : NetworkBehaviour
     {
 
         
-        //Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
+        
         GameObject ball = ballNetId.gameObject;
         ball.GetComponent<Ball>().player = ballId.GetComponent<Player>();
         ball.transform.parent = null;
         RpcLaunchBall(ballId);
-        ////ball.GetComponent<Rigidbody>().velocity = dir * 600f;
-        // ball.GetComponent<Ball>().movementDirection = dir;
          ball.GetComponent<Ball>().hasLaunched = true;
     }
     [ClientRpc]
@@ -146,9 +144,7 @@ public class Player : NetworkBehaviour
         ball.GetComponent<Ball>().movementDirection = dir;
         ball.GetComponent<Ball>().player = ballId.GetComponent<Player>();
         ball.transform.parent = null;
-        GameManager.instance.canLaunch = false;
-        //ball.GetComponent<Rigidbody>().velocity = dir * 600f;
-        
+        GameManager.instance.canLaunch = false;   
         ball.GetComponent<Ball>().hasLaunched = true;
     }
 
