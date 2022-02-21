@@ -19,7 +19,6 @@ public class Player : NetworkBehaviour
     public Text playerScoreText;
     public Vector3 spawnPosition;
     public bool launchedBall = false;
-    public bool loadedBall = false;
     CameraBounds cameraBounds;
     public RectTransform playerInfoRect;
     Color color;
@@ -75,15 +74,15 @@ public class Player : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (loadedBall && !launchedBall)
+            if (GameManager.instance.loadedBall && GameManager.instance.canLaunch)
             {
                 CmdLaunchBall();
                 launchedBall = true;
             }
-            if (!loadedBall)
+            if (!GameManager.instance.loadedBall)
             {
                 CmdLoadBall();
-                loadedBall = true;
+                GameManager.instance.loadedBall = true;
             }
 
             
@@ -101,16 +100,13 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdLoadBall()
     {
-
+       
         GameObject ball = Instantiate(Resources.Load("Ball"), transform.GetChild(0).transform.position, Quaternion.identity) as GameObject;
         NetworkServer.Spawn(ball);
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
-        ball.GetComponent<Ball>().player = this;
         ball.transform.parent = this.transform;
         ball.transform.position = transform.GetChild(0).position;
-        //ball.GetComponent<Rigidbody>().velocity = dir * 600f;
-        //ball.GetComponent<Ball>().movementDirection = dir;
-        //ball.GetComponent<Ball>().hasLaunched = true;
+       
     }
     [Command(requiresAuthority = false)]
     public void CmdLaunchBall()
@@ -121,7 +117,7 @@ public class Player : NetworkBehaviour
         GameObject ball = transform.GetChild(2).gameObject;
         ball.GetComponent<Ball>().player = this;
         ball.transform.parent = null;
-
+        GameManager.instance.canLaunch = false;
         ball.GetComponent<Rigidbody>().velocity = dir * 600f;
         ball.GetComponent<Ball>().movementDirection = dir;
         ball.GetComponent<Ball>().hasLaunched = true;

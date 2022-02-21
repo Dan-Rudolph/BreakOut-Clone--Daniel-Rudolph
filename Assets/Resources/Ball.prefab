@@ -130,7 +130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  BallSpeed: 300
+  BallSpeed: 600
   movementDirection: {x: 0, y: 0, z: 0}
   hasLaunched: 0
   player: {fileID: 0}

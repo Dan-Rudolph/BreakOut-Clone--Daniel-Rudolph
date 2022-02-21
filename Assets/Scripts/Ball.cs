@@ -98,6 +98,7 @@ public class Ball : NetworkBehaviour
         rb.velocity = Vector3.zero;
         sphereCollider.enabled = false;
         GameManager.instance.canLaunch = true;
+        GameManager.instance.loadedBall =false;
         yield return new WaitForSeconds(1);
         NetworkServer.Destroy(gameObject);
     }

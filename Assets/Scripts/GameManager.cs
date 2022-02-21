@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public bool blockArraySpawned = false;
     public int totalBallCount;
     public bool canLaunch;
+    public bool loadedBall = false;
     void Awake()
     {
         if (instance != null)
