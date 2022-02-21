@@ -11,6 +11,7 @@ public class Player : NetworkBehaviour
     [SerializeField]
     float blockOffsetY, blockOffsetX;
     Vector3 moveVector;
+    NetworkIdentity ballNetId;
     new Renderer renderer;
     private int blockArrayWidth = 10;
     private int blockArrayHeight = 5;
@@ -45,10 +46,7 @@ public class Player : NetworkBehaviour
         transform.name = GetComponent<NetworkIdentity>().netId.ToString();
         Invoke("SetName", 0.5f);
 
-        if (isLocalPlayer)
-        {
-            GameManager.instance.canLaunch = true;
-        }
+       
         if (NetworkManager.singleton.numPlayers > 1)
         {
             CmdRepositionPlayerPanel();
@@ -74,12 +72,12 @@ public class Player : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (GameManager.instance.loadedBall && GameManager.instance.canLaunch)
+            if (GameManager.instance.loadedBall)
             {
                 CmdLaunchBall(transform.GetComponent<NetworkIdentity>());
                 launchedBall = true;
             }
-            if (!GameManager.instance.loadedBall)
+            else 
             {
                 CmdLoadBall(transform.GetComponent<NetworkIdentity>());
                 GameManager.instance.loadedBall = true;
@@ -97,30 +95,62 @@ public class Player : NetworkBehaviour
        cameraBounds.LeftCameraBounds + renderer.bounds.size.x / 2, cameraBounds.RightCameraBounds - renderer.bounds.size.x / 2), -4, 0));//apply and clamp player movement to horizontal viewPort + player bounds 
     }
 
-    [Command(requiresAuthority = false)]
+   
+    [Command]
     public void CmdLoadBall(NetworkIdentity ballId)
     {
-       
+
         GameObject ball = Instantiate(Resources.Load("Ball"), transform.GetChild(0).transform.position, Quaternion.identity) as GameObject;
         NetworkServer.Spawn(ball);
+        GameManager.instance.sceneBalls.Add(ball.GetComponent<NetworkIdentity>().netId.ToString());
+        ballId.gameObject.GetComponent<Player>().ballNetId = ball.GetComponent<NetworkIdentity>();
+        ball.GetComponent<Ball>().ballNetId = ball.GetComponent<NetworkIdentity>();
+        ball.GetComponent<Ball>().ownerId = ballId;
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
         ball.transform.parent = ballId.gameObject.transform;
-        ball.transform.position = transform.GetChild(0).position;
-       
+        ball.transform.position = ballId.transform.GetChild(0).position;
+        RpcLoadBall(ballId, ball.GetComponent<NetworkIdentity>());
+
     }
-    [Command(requiresAuthority = false)]
+    [ClientRpc]
+    public void RpcLoadBall(NetworkIdentity ballId,NetworkIdentity ball)
+    {
+
+        ballId.gameObject.GetComponent<Player>().ballNetId = ball.GetComponent<NetworkIdentity>();
+        ball.GetComponent<Ball>().ballNetId = ball.GetComponent<NetworkIdentity>();
+        ball.GetComponent<Ball>().ownerId = ballId;
+        Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
+        ball.transform.parent = ballId.gameObject.transform;
+        ball.transform.position = ballId.transform.GetChild(0).position;
+
+    }
+    [Command]
     public void CmdLaunchBall(NetworkIdentity ballId)
     {
 
         
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
-        GameObject ball = transform.GetChild(2).gameObject;
+        GameObject ball = ballNetId.gameObject;
         ball.GetComponent<Ball>().player = ballId.GetComponent<Player>();
         ball.transform.parent = null;
         GameManager.instance.canLaunch = false;
         ball.GetComponent<Rigidbody>().velocity = dir * 600f;
         ball.GetComponent<Ball>().movementDirection = dir;
         ball.GetComponent<Ball>().hasLaunched = true;
+    }
+
+    [Command(requiresAuthority =false)]
+    public void CmdReturnBall(NetworkIdentity netId, NetworkIdentity ownerId)
+    {
+        //netId.transform.position = ownerId.transform.GetChild(0).position;
+        //netId.transform.parent = ownerId.transform;
+        RpcReturnBall(netId, ownerId);
+    }
+    [ClientRpc]
+    public void RpcReturnBall(NetworkIdentity netId,NetworkIdentity ownerId)
+    {
+        netId.transform.position = ownerId.transform.GetChild(0).position;
+        netId.transform.parent = ownerId.transform;
     }
     public IEnumerator SpawnBlockArray()
     {

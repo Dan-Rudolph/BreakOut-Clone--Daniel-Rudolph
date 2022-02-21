@@ -15,6 +15,7 @@ public class Ball : NetworkBehaviour
     public Player player;
     CameraBounds cameraBounds;
     public NetworkIdentity ballNetId;
+    public NetworkIdentity ownerId;
     
     void Start()
     {
@@ -96,11 +97,11 @@ public class Ball : NetworkBehaviour
     {
         hasLaunched = false;
         rb.velocity = Vector3.zero;
-        sphereCollider.enabled = false;
+        //sphereCollider.enabled = false;
         GameManager.instance.canLaunch = true;
-        GameManager.instance.loadedBall =false;
+       // GameManager.instance.loadedBall =false;
         yield return new WaitForSeconds(1);
-        NetworkServer.Destroy(gameObject);
+        ownerId.gameObject.GetComponent<Player>().CmdReturnBall(ballNetId, ownerId);
     }
 
 

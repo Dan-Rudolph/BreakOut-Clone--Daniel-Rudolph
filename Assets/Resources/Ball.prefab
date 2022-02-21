@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -4190730217033519016}
   - component: {fileID: 2938868461218573234}
   - component: {fileID: 8221347250987632424}
+  - component: {fileID: -1701496663856415549}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -130,7 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  BallSpeed: 600
+  BallSpeed: 800
   movementDirection: {x: 0, y: 0, z: 0}
   hasLaunched: 0
   player: {fileID: 0}
@@ -293,3 +294,21 @@ MonoBehaviour:
   visible: 0
   m_AssetId: b156c7aad78208c488cb12159f924dd1
   hasSpawned: 0
+--- !u!114 &-1701496663856415549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5685013547978372570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f032128052c95a46afb0ddd97d994cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  target: {fileID: 4450916140336768268}
+  lerpVelocityAmount: 0.5
+  lerpPositionAmount: 0.5
+  clientAuthority: 0
