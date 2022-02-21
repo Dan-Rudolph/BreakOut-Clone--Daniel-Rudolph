@@ -18,7 +18,6 @@ public class Ball : NetworkBehaviour
     Cursor cursor;
     void Start()
     {
-       
         cameraBounds = FindObjectOfType<CameraBounds>();
         renderer = GetComponent<Renderer>();
         rb = GetComponent<Rigidbody>();
@@ -87,10 +86,8 @@ public class Ball : NetworkBehaviour
         if (collision.gameObject.CompareTag("Block"))
         {
             StartCoroutine(DeflectBall(collision.GetContact(0).normal));
-            Mirror.NetworkServer.Destroy(collision.gameObject);
-            player.playerScore += 100;
-            player.SpawnNetworkObject("impact", transform.position);
-
+           
+           
         }
         if (collision.gameObject.CompareTag("Player"))
         {
