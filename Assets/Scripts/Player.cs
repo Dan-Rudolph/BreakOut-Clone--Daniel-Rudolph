@@ -106,7 +106,7 @@ public class Player : NetworkBehaviour
         ballId.gameObject.GetComponent<Player>().ballNetId = ball.GetComponent<NetworkIdentity>();
         ball.GetComponent<Ball>().ballNetId = ball.GetComponent<NetworkIdentity>();
         ball.GetComponent<Ball>().ownerId = ballId;
-        Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
+        //Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
         ball.transform.parent = ballId.gameObject.transform;
         ball.transform.position = ballId.transform.GetChild(0).position;
         RpcLoadBall(ballId, ball.GetComponent<NetworkIdentity>());
@@ -119,7 +119,7 @@ public class Player : NetworkBehaviour
         ballId.gameObject.GetComponent<Player>().ballNetId = ball.GetComponent<NetworkIdentity>();
         ball.GetComponent<Ball>().ballNetId = ball.GetComponent<NetworkIdentity>();
         ball.GetComponent<Ball>().ownerId = ballId;
-        Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
+        //Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
         ball.transform.parent = ballId.gameObject.transform;
         ball.transform.position = ballId.transform.GetChild(0).position;
 
@@ -130,6 +130,20 @@ public class Player : NetworkBehaviour
 
         
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
+        GameObject ball = ballNetId.gameObject;
+        ball.GetComponent<Ball>().player = ballId.GetComponent<Player>();
+        ball.transform.parent = null;
+        RpcLaunchBall(ballId, dir);
+        ball.GetComponent<Rigidbody>().velocity = dir * 600f;
+        ball.GetComponent<Ball>().movementDirection = dir;
+        ball.GetComponent<Ball>().hasLaunched = true;
+    }
+    [ClientRpc]
+    public void RpcLaunchBall(NetworkIdentity ballId, Vector3 dir)
+    {
+
+
+      
         GameObject ball = ballNetId.gameObject;
         ball.GetComponent<Ball>().player = ballId.GetComponent<Player>();
         ball.transform.parent = null;
