@@ -96,7 +96,6 @@ public class Player : NetworkBehaviour
         GameObject ball = Instantiate(Resources.Load("Ball"), transform.GetChild(0).transform.position, Quaternion.identity) as GameObject;
         NetworkServer.Spawn(ball);
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
-                                                         //Debug.DrawLine(transform.position, dir, Color.green);
         ball.GetComponent<Ball>().player = this;
         ball.GetComponent<Rigidbody>().velocity = dir * 600f;
         ball.GetComponent<Ball>().movementDirection = dir;

@@ -79,6 +79,26 @@ public class Ball : NetworkBehaviour
         }
 
     }
+    private void OnCollisionStay(Collision collision)
+    {
+        if (hasCollided)
+            return;
+        if (collision.gameObject.CompareTag("Block"))
+        {
+            StartCoroutine(DeflectBall(collision.GetContact(0).normal));
+           
+           
+        }
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            StartCoroutine(DeflectBall(collision.GetContact(0).normal));
+        }
+        if (collision.gameObject.CompareTag("DeathTrigger"))
+        {
+            StartCoroutine(BallDeathTimer());
+        }
+
+    }
     private void OnCollisionExit(Collision collision)
     {
         if (!hasCollided)
