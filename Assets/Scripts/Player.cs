@@ -85,7 +85,7 @@ public class Player : NetworkBehaviour
     }
     void PlayerMovement()
     {
-        moveVector = new Vector3(Input.GetAxis("Mouse X"), 0, 0).normalized;//pass the mouse horizontal movement into the moveVector and normalise it.
+        moveVector = new Vector3(Input.GetAxisRaw("Mouse X"), 0, 0);//pass the mouse horizontal movement into the moveVector and normalise it.
         transform.position = (new Vector3(Mathf.Clamp(transform.position.x + moveVector.x * speed * Time.deltaTime,
        cameraBounds.LeftCameraBounds + renderer.bounds.size.x / 2, cameraBounds.RightCameraBounds - renderer.bounds.size.x / 2), -4, 0));//apply and clamp player movement to horizontal viewPort + player bounds 
     }
