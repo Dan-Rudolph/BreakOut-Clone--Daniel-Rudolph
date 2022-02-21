@@ -15,9 +15,10 @@ public class Ball : NetworkBehaviour
     public Player player;
     CameraBounds cameraBounds;
     public NetworkIdentity ballNetId;
-    
+    Cursor cursor;
     void Start()
     {
+       
         cameraBounds = FindObjectOfType<CameraBounds>();
         renderer = GetComponent<Renderer>();
         rb = GetComponent<Rigidbody>();

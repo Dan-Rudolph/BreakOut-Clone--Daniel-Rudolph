@@ -39,6 +39,7 @@ public class Player : NetworkBehaviour
 
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
         cameraBounds = FindObjectOfType<CameraBounds>();
         blockArray = new GameObject[blockArrayWidth, blockArrayHeight];
         renderer = GetComponent<Renderer>();
