@@ -18,11 +18,11 @@ public class Player : NetworkBehaviour
     public Text playerNameText;
     public Text playerScoreText;
     public Vector3 spawnPosition;
-    public bool launchedBall;
+    public bool launchedBall = false;
+    public bool loadedBall = false;
     CameraBounds cameraBounds;
     public RectTransform playerInfoRect;
     Color color;
-
     [SyncVar(hook = nameof(OnScoreUpdate))]
     public int playerScore;
     public void OnScoreUpdate(int currentScore, int newScore)
@@ -73,13 +73,21 @@ public class Player : NetworkBehaviour
             return;
         PlayerMovement();
 
-        if (Input.GetKeyDown(KeyCode.Space) && !launchedBall)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if(GameManager.instance.canLaunch)
+            if (loadedBall && !launchedBall)
             {
                 CmdLaunchBall();
-                GameManager.instance.canLaunch = false;
+                launchedBall = true;
             }
+            if (!loadedBall)
+            {
+                CmdLoadBall();
+                loadedBall = true;
+            }
+
+            
+            
            
         }
     }
@@ -91,18 +99,33 @@ public class Player : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdLaunchBall()
+    public void CmdLoadBall()
     {
 
         GameObject ball = Instantiate(Resources.Load("Ball"), transform.GetChild(0).transform.position, Quaternion.identity) as GameObject;
         NetworkServer.Spawn(ball);
         Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
         ball.GetComponent<Ball>().player = this;
+        ball.transform.parent = this.transform;
+        ball.transform.position = transform.GetChild(0).position;
+        //ball.GetComponent<Rigidbody>().velocity = dir * 600f;
+        //ball.GetComponent<Ball>().movementDirection = dir;
+        //ball.GetComponent<Ball>().hasLaunched = true;
+    }
+    [Command(requiresAuthority = false)]
+    public void CmdLaunchBall()
+    {
+
+        
+        Vector2 dir = RandomVector2(2.35619f, 0.785398f);//calculates a random angle between 135 and 45 degrees in radians
+        GameObject ball = transform.GetChild(2).gameObject;
+        ball.GetComponent<Ball>().player = this;
+        ball.transform.parent = null;
+
         ball.GetComponent<Rigidbody>().velocity = dir * 600f;
         ball.GetComponent<Ball>().movementDirection = dir;
         ball.GetComponent<Ball>().hasLaunched = true;
     }
-
     public IEnumerator SpawnBlockArray()
     {
         for (int x = 0; x < 10; x++)
