@@ -73,6 +73,7 @@ public class Ball : NetworkBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             StartCoroutine(DeflectBall(collision.GetContact(0).normal));
+            collision.gameObject.GetComponent<Animator>().SetBool("isHit", true);
         }
         if (collision.gameObject.CompareTag("DeathTrigger"))
         {
@@ -88,7 +89,6 @@ public class Ball : NetworkBehaviour
             player.playerScore += 100;
             StartCoroutine(DeflectBall(collision.GetContact(0).normal));
             NetworkServer.Destroy(collision.gameObject);
-           
             player.SpawnNetworkObject("impact", transform.position);
         }
         if (collision.gameObject.CompareTag("Player"))

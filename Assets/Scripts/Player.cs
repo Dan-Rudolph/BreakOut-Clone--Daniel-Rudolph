@@ -42,7 +42,7 @@ public class Player : NetworkBehaviour
     public bool colourChanging;
     public void OnColourChange(bool active, bool notActive)
     {
-        ColourBlockArray();
+        CmdColourBlockArray();
     }
 
     void Start()
@@ -92,8 +92,8 @@ public class Player : NetworkBehaviour
     }
     void PlayerMovement()
     {
-        moveVector = new Vector3(Input.GetAxisRaw("Mouse X"), 0, 0);//pass the mouse horizontal movement into the moveVector and normalise it.
-        transform.position = (new Vector3(Mathf.Clamp(transform.position.x + moveVector.x * speed * Time.deltaTime,
+       moveVector = new Vector3(Input.GetAxisRaw("Mouse X"), 0, 0);//pass the mouse horizontal movement into the moveVector and normalise it.
+       transform.position = (new Vector3(Mathf.Clamp(transform.position.x + moveVector.x * speed * Time.deltaTime,
        cameraBounds.LeftCameraBounds + renderer.bounds.size.x / 2, cameraBounds.RightCameraBounds - renderer.bounds.size.x / 2), -4, 0));//apply and clamp player movement to horizontal viewPort + player bounds 
     }
 
@@ -169,13 +169,13 @@ public class Player : NetworkBehaviour
                
             }
         }
-        ColourBlockArray();
+        //ColourBlockArray();
         colourChanging = true;
     }
-    
-    public void ColourBlockArray()
+    [Command(requiresAuthority =false)]
+    public void CmdColourBlockArray()
     {
-        for (int i = 0; i <= GameManager.instance.blockArray.GetUpperBound(0); i++)//iterate through each row and set the material color with hex codes
+        for (int i = 0; i <= blockArray.GetUpperBound(0); i++)//iterate through each row and set the material color with hex codes
         {
             if (ColorUtility.TryParseHtmlString("#14145B", out color))
             {
@@ -227,7 +227,7 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     public void RpcRepositionPlayerPanel()//tell clients to move their score panel
     {
-        playerInfoRect.anchoredPosition = new Vector2(158.7f, 445.3f);
+        playerInfoRect.anchoredPosition = new Vector2(760.7f, 445.3f);
     }
 
 }

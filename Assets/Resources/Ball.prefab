@@ -100,9 +100,9 @@ Rigidbody:
   m_AngularDrag: 0
   m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 8
-  m_CollisionDetection: 1
+  m_CollisionDetection: 2
 --- !u!135 &4450916140336768264
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  BallSpeed: 800
+  BallSpeed: 2000
   movementDirection: {x: 0, y: 0, z: 0}
   hasLaunched: 0
   player: {fileID: 0}
